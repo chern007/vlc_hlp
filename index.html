@@ -35,51 +35,65 @@
       "esri/widgets/Legend",
     ], function (esriConfig, Map, MapView, WebMap, IdentityManager, Legend) {
 
-      // Configura el token generado
-      const token = "3NKHt6i2urmWtqOuugvr9SEzY99XOxajqLEFE_aN0-E6PlijBXSpJBsygyFAZ4pXh7N-Aub2mzwkyeUze63aIv65bDuQuSrN0bi3zzzvxFtyePxcWzGuZnDFDfcZ90_1"; // Reemplaza con tu token real
+      const requestOptions = {
+        method: "POST",
+        redirect: "follow"
+      };
 
-      // Configura la URL de tu servicio de autenticación si lo necesitas
-      const portalUrl = "https://www.arcgis.com/sharing/rest";
-      //   const portalUrl = "https://ca5igivfpsgh0zfy.maps.arcgis.com/home";
+      fetch("https://www.arcgis.com/sharing/rest/oauth2/token?client_id=SrSuUGtmJwKbl18Q&client_secret=1656be08e38049bd9d5465a6bc81c8ff&grant_type=client_credentials", requestOptions)
+        .then((response) => response.json())
+        .then((data) => {
+          const token = data.access_token; // Obtenemos el token de acceso al webmap
 
-      // Registrar el token en IdentityManager
-      IdentityManager.registerToken({
-        server: portalUrl,
-        token: token,
-        userId: "carl0shc" // Opcional, tu nombre de usuario si es necesario
-      });
+          const portalUrl = "https://www.arcgis.com/sharing/rest";
 
-      // Cargar el WebMap usando su ID
-      var webmap = new WebMap({
-        portalItem: {
-          id: "a126fe50db0947e490fddb53b782a20a" // Reemplaza con el ID de tu WebMap
-        }
-      });
+          // Registrar el token en IdentityManager
+          IdentityManager.registerToken({
+            server: portalUrl,
+            token: token
+          });
 
-      // Crear el MapView para mostrar el WebMap en la página
-      var view = new MapView({
-        container: "viewDiv",  // ID del contenedor HTML
-        map: webmap
-      });
+          // Cargar el WebMap usando su ID
+          var webmap = new WebMap({
+            portalItem: {
+              id: "a126fe50db0947e490fddb53b782a20a" // ID del WebMap
+            }
+          });
 
+          // Crear el MapView para mostrar el WebMap en la página
+          var view = new MapView({
+            container: "viewDiv",  // ID del contenedor HTML
+            map: webmap
+          });
 
-      // Agregar la leyenda al mapa como widget en la esquina inferior izquierda
-      view.when(function () {
-        // Crear el widget de leyenda
-        var legend = new Legend({
-          view: view
+          // Agregar la leyenda al mapa como widget en la esquina inferior izquierda
+          view.when(function () {
+            // Aplicar la extensión inicial configurada en el WebMap
+            view.goTo(webmap.initialViewProperties.viewpoint)
+              .then(function () {
+                // Crear el widget de leyenda
+                var legend = new Legend({
+                  view: view
+                });
+
+                // Añadir el widget de leyenda a la esquina inferior izquierda
+                view.ui.add(legend, {
+                  position: "bottom-left"
+                });
+
+                console.log("El WebMap y la leyenda se han cargado correctamente");
+              })
+              .catch(function (error) {
+                console.error("Error al aplicar la extensión inicial: ", error);
+              });
+          }).catch(function (error) {
+            console.error("Error al cargar el WebMap: ", error);
+          });
+
+        })
+        .catch((error) => {
+          console.error('Error al obtener el token: ', error);
         });
-
-        // Añadir el widget de leyenda a la esquina inferior izquierda
-        view.ui.add(legend, {
-          position: "bottom-left"
-        });
-
-        console.log("El WebMap y la leyenda se han cargado correctamente");
-      }).catch(function (error) {
-        console.error("Error al cargar el WebMap: ", error);
-      });
-
     });
   </script>
 </body>
