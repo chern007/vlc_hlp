@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="initial-scale=1,maximum-scale=1,user-scalable=no">
+  <title>Visualización de WebMap</title>
+
+  <!-- ArcGIS API for JavaScript -->
+  <link rel="stylesheet" href="https://js.arcgis.com/4.27/esri/themes/light/main.css">
+  <script src="https://js.arcgis.com/4.27/"></script>
+
+  <style>
+    html, body, #viewDiv {
+      padding: 0;
+      margin: 0;
+      height: 100%;
+      width: 100%;
+    }
+  </style>
+</head>
+<body>
+  <div id="viewDiv"></div>
+
+  <script>
+    require([
+      "esri/config",
+      "esri/Map",
+      "esri/views/MapView",
+      "esri/WebMap",
+      "esri/identity/IdentityManager"
+    ], function(esriConfig, Map, MapView, WebMap, IdentityManager) {
+      
+      // Configura el token generado
+      const token = "3NKHt6i2urmWtqOuugvr9SEzY99XOxajqLEFE_aN0-E6PlijBXSpJBsygyFAZ4pXh7N-Aub2mzwkyeUze63aIv65bDuQuSrN0bi3zzzvxFtyePxcWzGuZnDFDfcZ90_1"; // Reemplaza con tu token real
+
+      // Configura la URL de tu servicio de autenticación si lo necesitas
+      const portalUrl = "https://www.arcgis.com/sharing/rest";
+    //   const portalUrl = "https://ca5igivfpsgh0zfy.maps.arcgis.com/home";
+
+      // Registrar el token en IdentityManager
+      IdentityManager.registerToken({
+        server: portalUrl,
+        token: token,
+        userId: "carl0shc" // Opcional, tu nombre de usuario si es necesario
+      });
+
+      // Cargar el WebMap usando su ID
+      var webmap = new WebMap({
+        portalItem: {
+          id: "a126fe50db0947e490fddb53b782a20a" // Reemplaza con el ID de tu WebMap
+        }
+      });
+
+      // Crear el MapView para mostrar el WebMap en la página
+      var view = new MapView({
+        container: "viewDiv",  // ID del contenedor HTML
+        map: webmap
+      });
+
+      // Manejar errores de autenticación (opcional)
+      view.when(function() {
+        console.log("El WebMap se ha cargado correctamente");
+      }).catch(function(error) {
+        console.error("Error al cargar el WebMap: ", error);
+      });
+
+    });
+  </script>
+</body>
+</html>
